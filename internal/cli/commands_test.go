@@ -1875,3 +1875,85 @@ error: 0e0
 		t.Errorf("sum with 401 significand digits returned (%d, %q, %q), want the complete literal diagnostic", status, stdout, stderr)
 	}
 }
+
+func TestNextReadsSingleHexWordFromStdin(t *testing.T) {
+	wantOutput := `offset  bits    value
+-1      0x3bff  9.995e-1
+0       0x3c00  1e0
++1      0x3c01  1.001e0
+`
+	tests := []struct {
+		name       string
+		args       []string
+		input      []byte
+		wantStatus int
+		wantStdout string
+		wantStderr string
+	}{
+		{
+			name:       "one word",
+			args:       []string{"next", "--count", "1", "f16", "-"},
+			input:      []byte("3c00\n"),
+			wantStatus: 0,
+			wantStdout: wantOutput,
+		},
+		{
+			name:       "byte-order mark, prefix, and CR LF",
+			args:       []string{"next", "--count", "1", "f16", "-"},
+			input:      []byte{0xef, 0xbb, 0xbf, '0', 'x', '3', 'c', '0', '0', '\r', '\n'},
+			wantStatus: 0,
+			wantStdout: wantOutput,
+		},
+		{
+			name:       "two words",
+			args:       []string{"next", "f16", "-"},
+			input:      []byte("3c00 3c01\n"),
+			wantStatus: 2,
+			wantStderr: "fpbits: <stdin>: expected 1 word, got 2\n",
+		},
+		{
+			name:       "no words",
+			args:       []string{"next", "f16", "-"},
+			input:      []byte(" \t\r\n"),
+			wantStatus: 2,
+			wantStderr: "fpbits: <stdin>: no input\n",
+		},
+		{
+			name:       "invalid UTF-8",
+			args:       []string{"next", "f16", "-"},
+			input:      []byte{0x33, 0xff},
+			wantStatus: 2,
+			wantStderr: "fpbits: <stdin>: input is not valid UTF-8\n",
+		},
+		{
+			name:       "bad hex word",
+			args:       []string{"next", "f16", "-"},
+			input:      []byte("3c0\n"),
+			wantStatus: 2,
+			wantStderr: "fpbits: invalid hex word \"3c0\" for f16 (expected 4 hex digits)\n",
+		},
+		{
+			name:       "unknown format is reported before stdin is read",
+			args:       []string{"next", "f17", "-"},
+			input:      []byte{0xff},
+			wantStatus: 2,
+			wantStderr: "fpbits: unknown format \"f17\" (expected f16, bf16, f32, f64, e5m2 or e4m3)\n",
+		},
+		{
+			name:       "too many arguments are reported before stdin is read",
+			args:       []string{"next", "f16", "-", "3c00"},
+			input:      []byte{0xff},
+			wantStatus: 2,
+			wantStderr: "fpbits: too many arguments\n",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			status, stdout, stderr, _, _ := runCLI(test.args, test.input)
+			if status != test.wantStatus || stdout != test.wantStdout || stderr != test.wantStderr {
+				t.Errorf("cli.Run(%q) = (%d, %q, %q), want (%d, %q, %q)", test.args, status, stdout, stderr, test.wantStatus, test.wantStdout, test.wantStderr)
+			}
+		})
+	}
+}

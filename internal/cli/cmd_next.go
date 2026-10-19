@@ -31,7 +31,18 @@ func RunNext(argv []string, stdin io.Reader) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	bits, err := fp.ParseHex(format, parsed.Args[1])
+	hex := parsed.Args[1]
+	if hex == "-" {
+		words, err := core.Words(stdin, parsed.Args[1:])
+		if err != nil {
+			return "", err
+		}
+		if len(words) != 1 {
+			return "", core.Failf("<stdin>: expected 1 word, got %d", len(words))
+		}
+		hex = words[0]
+	}
+	bits, err := fp.ParseHex(format, hex)
 	if err != nil {
 		return "", err
 	}
