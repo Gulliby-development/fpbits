@@ -24,7 +24,7 @@ usage: fpbits decode FORMAT HEX...
        fpbits sum FORMAT NUMBER...
 ```
 
-Commands accept values as command-line arguments. For `decode`, `encode`, `convert`, and `sum`, a single `-` in place of the values reads whitespace-separated words from standard input. The input must be valid UTF-8; a leading byte-order mark is accepted.
+Commands accept values as command-line arguments. For `decode`, `encode`, `convert`, and `sum`, a single `-` in place of the values reads whitespace-separated words from standard input. `next` also accepts a single `-` in place of HEX; standard input must then hold exactly one word. The input must be valid UTF-8; a leading byte-order mark is accepted.
 
 Examples of commands include `fpbits decode f16 3c00`, `fpbits encode f16 0.1`, `fpbits convert f32 f16 3f800000`, `fpbits ulp f16 1`, `fpbits next --count 3 f16 3c00`, `fpbits range e4m3`, and `fpbits sum f16 2048 1 1`.
 
