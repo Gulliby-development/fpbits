@@ -29,11 +29,22 @@ func RunUlp(argv []string, stdin io.Reader) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	number, err := num.Parse(parsed.Args[1], false)
+	text := parsed.Args[1]
+	if text == "-" {
+		words, err := core.Words(stdin, parsed.Args[1:])
+		if err != nil {
+			return "", err
+		}
+		if len(words) != 1 {
+			return "", core.Failf("<stdin>: expected 1 word, got %d", len(words))
+		}
+		text = words[0]
+	}
+	number, err := num.Parse(text, false)
 	if err != nil {
 		return "", err
 	}
-	lines, err := analysis.Ulp(format, parsed.Args[1], number)
+	lines, err := analysis.Ulp(format, text, number)
 	if err != nil {
 		return "", err
 	}

@@ -24,9 +24,11 @@ usage: fpbits decode FORMAT HEX...
        fpbits sum FORMAT NUMBER...
 ```
 
-Commands accept values as command-line arguments. For `decode`, `encode`, `convert`, and `sum`, a single `-` in place of the values reads whitespace-separated words from standard input. `next` also accepts a single `-` in place of HEX; standard input must then hold exactly one word. The input must be valid UTF-8; a leading byte-order mark is accepted.
+Commands accept values as command-line arguments. For `decode`, `encode`, `convert`, and `sum`, a single `-` in place of the values reads whitespace-separated words from standard input. `next` and `ulp` also accept a single `-` in place of HEX or NUMBER; standard input must then hold exactly one word. The input must be valid UTF-8; a leading byte-order mark is accepted.
 
 Examples of commands include `fpbits decode f16 3c00`, `fpbits encode f16 0.1`, `fpbits convert f32 f16 3f800000`, `fpbits ulp f16 1`, `fpbits next --count 3 f16 3c00`, `fpbits range e4m3`, and `fpbits sum f16 2048 1 1`.
+
+For example, `echo 0.1 | fpbits ulp f16 -` reports the spacing around 0.1 rounded to `f16`. A `-` mixed with other arguments is an ordinary (invalid) value.
 
 ## Formats
 
@@ -48,7 +50,7 @@ Every pattern consists of one sign bit, the format's exponent field, and its fra
 - `decode FORMAT HEX...` describes each hexadecimal bit pattern, including its fields, class, shortest round-tripping value, and exact value when finite.
 - `encode FORMAT NUMBER...` rounds each decimal input to the selected format and reports the rounded description and rounding error.
 - `convert FROM TO HEX...` decodes each source pattern and re-encodes its value in the destination format, reporting the error when the source is finite.
-- `ulp FORMAT NUMBER` rounds a number to the format and reports the spacing above that value and the gap toward zero. It requires a finite rounded value.
+- `ulp FORMAT NUMBER` rounds a number to the format and reports the spacing above that value and the gap toward zero. It requires a finite rounded value. NUMBER may be a single `-` to read one word from standard input.
 - `next [--count N] FORMAT HEX` lists nearby representable values around a bit pattern. The optional count is from 1 through 64 and defaults to 2; NaN values cannot be stepped from.
 - `range FORMAT` reports a format's layout, smallest subnormal and normal values, largest finite value, epsilon, and counts of finite and special encodings.
 - `sum FORMAT NUMBER...` rounds each finite decimal term, adds terms sequentially in the selected format, and compares the result with the exact sum of the inputs. It accepts at most 50 terms.
