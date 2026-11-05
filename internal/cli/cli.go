@@ -14,7 +14,7 @@ var Usage = []string{
 	"       fpbits convert FROM TO HEX...",
 	"       fpbits ulp FORMAT NUMBER",
 	"       fpbits next [--count N] FORMAT HEX",
-	"       fpbits range FORMAT",
+	"       fpbits range [--lines N] FORMAT",
 	"       fpbits sum FORMAT NUMBER...",
 }
 

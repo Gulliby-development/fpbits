@@ -20,7 +20,7 @@ usage: fpbits decode FORMAT HEX...
        fpbits convert FROM TO HEX...
        fpbits ulp FORMAT NUMBER
        fpbits next [--count N] FORMAT HEX
-       fpbits range FORMAT
+       fpbits range [--lines N] FORMAT
        fpbits sum FORMAT NUMBER...
 ```
 
@@ -52,7 +52,7 @@ Every pattern consists of one sign bit, the format's exponent field, and its fra
 - `convert FROM TO HEX...` decodes each source pattern and re-encodes its value in the destination format, reporting the error when the source is finite.
 - `ulp FORMAT NUMBER` rounds a number to the format and reports the spacing above that value and the gap toward zero. It requires a finite rounded value. NUMBER may be a single `-` to read one word from standard input.
 - `next [--count N] FORMAT HEX` lists nearby representable values around a bit pattern. The optional count is from 1 through 64 and defaults to 2; NaN values cannot be stepped from.
-- `range FORMAT` reports a format's layout, smallest subnormal and normal values, largest finite value, epsilon, and counts of finite and special encodings.
+- `range [--lines N] FORMAT` reports a format's layout, smallest subnormal and normal values, largest finite value, epsilon, and counts of finite and special encodings. With `--lines N` (an integer from 1 through 10, default 10) it prints only the first N lines of the report.
 - `sum FORMAT NUMBER...` rounds each finite decimal term, adds terms sequentially in the selected format, and compares the result with the exact sum of the inputs. It accepts at most 50 terms.
 
 For example, running `fpbits range f16` prints:
