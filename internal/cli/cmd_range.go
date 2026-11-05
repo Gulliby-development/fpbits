@@ -10,7 +10,9 @@ import (
 
 // RunRange reports the representable limits of one floating-point format.
 func RunRange(argv []string, stdin io.Reader) (string, error) {
-	parsed, err := core.ParseOptions(argv, nil)
+	parsed, err := core.ParseOptions(argv, []core.Spec{
+		{Name: "--lines", Lo: 1, Hi: 10, Fallback: 10},
+	})
 	if err != nil {
 		return "", err
 	}
@@ -25,5 +27,9 @@ func RunRange(argv []string, stdin io.Reader) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return strings.Join(analysis.Limits(format), "\n") + "\n", nil
+	lines := analysis.Limits(format)
+	if n := parsed.Values["--lines"]; n < len(lines) {
+		lines = lines[:n]
+	}
+	return strings.Join(lines, "\n") + "\n", nil
 }
